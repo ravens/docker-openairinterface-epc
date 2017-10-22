@@ -1,0 +1,59 @@
+version: '2'
+
+services:
+  db:
+    build: db
+    ports:
+        - 3306:3306
+    environment:
+        - MYSQL_ROOT_PASSWORD=linux
+    domainname: openair4G.eur
+    hostname: db
+  hss:
+    build: hss
+    links:
+     - db:db.openair4G.eur
+    networks:
+      default:
+      epc:
+        ipv4_address: 192.168.142.10
+    domainname: openair4G.eur
+    hostname: hss
+  mme: 
+    build: mme
+    links:
+     - hss:hss.openair4G.eur
+    networks:
+      epc:
+        ipv4_address: 192.168.142.20
+    domainname: openair4G.eur
+    hostname: mme
+  spgw: 
+    build: spgw
+    links:
+     - hss:hss.openair4G.eur
+    networks:
+      epc:
+        ipv4_address: 192.168.142.30
+      sg:
+        ipv4_address: 172.16.0.2
+    privileged: true
+    domainname: openair4G.eur
+    hostname: spgw
+    volumes:
+     - /lib/modules:/lib/modules 
+networks:
+  epc:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.142.0/24
+          gateway: 192.168.142.1
+  sg:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.0.0/16
+          gateway: 172.16.0.1
