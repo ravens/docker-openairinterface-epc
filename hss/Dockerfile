@@ -114,24 +114,16 @@ RUN cp /root/openair-cn/etc/hss.conf /usr/local/etc/oai/
 RUN cp /root/openair-cn/etc/hss_fd.conf /usr/local/etc/oai/freeDiameter/
 RUN cp /root/openair-cn/etc/acl.conf /usr/local/etc/oai/freeDiameter/
 
-# MySQL database configuration 
-RUN sed -i "s/@MYSQL_user@/$MYSQLUSER/g" /usr/local/etc/oai/hss.conf
-RUN sed -i "s/@MYSQL_pass@/$MYSQLPASSWORD/g" /usr/local/etc/oai/hss.conf
-RUN sed -i "s/127.0.0.1/$MYSQLHOSTNAME/g" /usr/local/etc/oai/hss.conf
-RUN sed -i "s/oai_db/$MYSQLDATABASE/g" /usr/local/etc/oai/hss.conf
+ENV MYSQLUSER=root
+ENV MYSQLPASSWORD=linux
+ENV MYSQLDATABASE=oai_db
+ENV MYSQLHOSTNAME=db.openair4G.eur
 
-# Operator key (OP)
-RUN sed -i "s/1006020f0a478bf6b699f15c062e42b3/$OPKEY/g" /usr/local/etc/oai/hss.conf
+ENV OPKEY=63bfa50ee6523365ff14c1f45f88737d
 
-# Generation of certificate for diameter 
-WORKDIR /root/
-RUN mkdir demoCA && touch demoCA/index.txt && echo 01 > demoCA/serial
-RUN openssl req  -new -batch -x509 -days 3650 -nodes -newkey rsa:1024 -out hss.cacert.pem -keyout hss.cakey.pem -subj /CN=$HSS_CN_NAME/C=FR/ST=PACA/L=Aix/O=Eurecom/OU=CM
-RUN openssl genrsa -out hss.key.pem 1024
-RUN openssl req -new -batch -out hss.csr.pem -key hss.key.pem -subj /CN=$HSS_CN_NAME/C=FR/ST=PACA/L=Aix/O=Eurecom/OU=CM
-RUN openssl ca -cert hss.cacert.pem -keyfile hss.cakey.pem -in hss.csr.pem -out hss.cert.pem -outdir . -batch
-RUN mv hss.cakey.pem hss.cert.pem hss.cacert.pem hss.key.pem /usr/local/etc/oai/freeDiameter/
-
+ENV HSS_CN_NAME=hss.openair4G.eur
 #ready to work
 WORKDIR /root
-ENTRYPOINT bash -x -c "sleep 15 && /root/openair-cn/build/hss/build/oai_hss"
+COPY start.sh /root/start.sh
+RUN chmod +x /root/start.sh
+ENTRYPOINT "/root/start.sh"

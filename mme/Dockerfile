@@ -171,17 +171,14 @@ RUN make -j`nproc`
 RUN mkdir -p /usr/local/etc/oai/freeDiameter
 RUN cp /root/openair-cn/etc/mme.conf /usr/local/etc/oai/
 RUN cp /root/openair-cn/etc/mme_fd.conf /usr/local/etc/oai/freeDiameter/
-RUN sed -i s/"192.168.11.17\/24"/"192.168.142.20\/24"/g /usr/local/etc/oai/mme.conf
-RUN sed -i s/"yang.openair4G.eur"/"mme.openair4G.eur"/g /usr/local/etc/oai/freeDiameter/mme_fd.conf
-RUN sed -i s/"127.0.0.1"/"192.168.142.10"/g /usr/local/etc/oai/freeDiameter/mme_fd.conf
 
-# Generation of certificate for diameter 
-WORKDIR /root/
-RUN mkdir demoCA && touch demoCA/index.txt && echo 01 > demoCA/serial
-RUN openssl req  -new -batch -x509 -days 3650 -nodes -newkey rsa:1024 -out mme.cacert.pem -keyout mme.cakey.pem -subj /CN=mme.openair4G.eur/C=FR/ST=PACA/L=Aix/O=Eurecom/OU=CM
-RUN openssl genrsa -out mme.key.pem 1024
-RUN openssl req -new -batch -out mme.csr.pem -key mme.key.pem -subj /CN=mme.openair4G.eur/C=FR/ST=PACA/L=Aix/O=Eurecom/OU=CM
-RUN openssl ca -cert mme.cacert.pem -keyfile mme.cakey.pem -in mme.csr.pem -out mme.cert.pem -outdir . -batch
-RUN mv mme.cakey.pem mme.cert.pem mme.cacert.pem mme.key.pem /usr/local/etc/oai/freeDiameter/
+ENV HSS_CN_NAME=hss.openair4G.eur
+ENV MME_CN_NAME=mme.openair4G.eur
+ENV MME_IPV4_ADDRESS_FOR_S1_MME="192.168.142.20"
+ENV HSS_IPV4_ADDRESS="192.168.142.10"
 
-ENTRYPOINT bash -x -c "sleep 17 &&  /root/openair-cn/build/mme/build/mme"
+#ready to work
+WORKDIR /root
+COPY start.sh /root/start.sh
+RUN chmod +x /root/start.sh
+ENTRYPOINT "/root/start.sh"
