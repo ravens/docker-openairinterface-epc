@@ -9,6 +9,26 @@ services:
         - MYSQL_ROOT_PASSWORD=linux
     domainname: openair4G.eur
     hostname: db
+  iperf3_server:
+    image: networkstatic/iperf3
+    ports:
+        - 5201:5201
+    command: ["-s"]
+    networks:
+      default:
+      epc:
+        ipv4_address: 192.168.142.40
+  iperf3_client:
+    depends_on:
+        - iperf3_server
+    image: networkstatic/iperf3
+    entrypoint: bash -x -c "while true;do /usr/bin/iperf3 -c 192.168.142.40 -J > /tmp/iperf_status/status.json; sleep 30;done"
+    volumes:
+     - /tmp/iperf_status:/tmp/iperf_status
+    networks:
+      default:
+      epc:
+        ipv4_address: 192.168.142.41
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     links:
