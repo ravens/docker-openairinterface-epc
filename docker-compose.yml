@@ -46,13 +46,12 @@ services:
       networks:
         default:
         epc:
-          ipv4_address: 192.168.142.41
     iperf3_client:
       depends_on:
           - iperf3_server
       image: networkstatic/iperf3
       container_name: oai_iperf3_client
-      entrypoint: bash -x -c "while true;do /usr/bin/iperf3 -c 192.168.142.41; sleep 30;done"
+      entrypoint: bash -x -c "while true;do /usr/bin/iperf3 -c iperf3_server; sleep 30;done"
       volumes:
        - /tmp/iperf_status:/tmp/iperf_status
       networks:
