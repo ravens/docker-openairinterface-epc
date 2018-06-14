@@ -34,92 +34,92 @@ services:
       networks:
           - monitoring
 
-  #####################
-  # Traffic Generator #
-  #####################
-  iperf3_server:
-    image: networkstatic/iperf3
-    ports:
-        - 5201:5201
-    command: ["-s"]
-    networks:
-      default:
-      epc:
-        ipv4_address: 192.168.142.41
-  iperf3_client:
-    depends_on:
-        - iperf3_server
-    image: networkstatic/iperf3
-    entrypoint: bash -x -c "while true;do /usr/bin/iperf3 -c 10.0.5.110 -J; sleep 30;done"
-    volumes:
-     - /tmp/iperf_status:/tmp/iperf_status
-    networks:
-      default:
-      epc:
-
-  ###############
-  # EPC Network #
-  ###############
-  db:
-    build: db
-    ports:
-        - 3306:3306
-    environment:
-        - MYSQL_ROOT_PASSWORD=linux
-    domainname: openair4G.eur
-    hostname: db
-  iperf3_server:
-    image: networkstatic/iperf3
-    ports:
-        - 5201:5201
-    command: ["-s"]
-    networks:
-      default:
-      epc:
-        ipv4_address: 192.168.142.40
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    links:
-     - db:db
-    ports:
-        - 8088:80
-    environment:
-        - MYSQL_ROOT_PASSWORD=linux
-        - MYSQL_USER=root
-        - MYSQL_PASSWORD=linux
-  hss:
-    build: hss
-    links:
-     - db:db.openair4G.eur
-    networks:
-      default:
-      epc:
-        ipv4_address: 192.168.142.10
-    domainname: openair4G.eur
-    hostname: hss
-  mme:
-    build: mme
-    links:
-     - hss:hss.openair4G.eur
-    networks:
-      epc:
-        ipv4_address: 192.168.142.20
-    domainname: openair4G.eur
-    hostname: mme
-  spgw:
-    build: spgw
-    links:
-     - hss:hss.openair4G.eur
-    networks:
-      epc:
-        ipv4_address: 192.168.142.30
-      sg:
-        ipv4_address: 172.16.0.2
-    privileged: true
-    domainname: openair4G.eur
-    hostname: spgw
-    volumes:
-     - /lib/modules:/lib/modules
+    #####################
+    # Traffic Generator #
+    #####################
+    iperf3_server:
+      image: networkstatic/iperf3
+      ports:
+          - 5201:5201
+      command: ["-s"]
+      networks:
+        default:
+        epc:
+          ipv4_address: 192.168.142.41
+    iperf3_client:
+      depends_on:
+          - iperf3_server
+      image: networkstatic/iperf3
+      entrypoint: bash -x -c "while true;do /usr/bin/iperf3 -c 10.0.5.110 -J; sleep 30;done"
+      volumes:
+       - /tmp/iperf_status:/tmp/iperf_status
+      networks:
+        default:
+        epc:
+  
+    ###############
+    # EPC Network #
+    ###############
+    db:
+      build: db
+      ports:
+          - 3306:3306
+      environment:
+          - MYSQL_ROOT_PASSWORD=linux
+      domainname: openair4G.eur
+      hostname: db
+    iperf3_server:
+      image: networkstatic/iperf3
+      ports:
+          - 5201:5201
+      command: ["-s"]
+      networks:
+        default:
+        epc:
+          ipv4_address: 192.168.142.40
+    phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      links:
+       - db:db
+      ports:
+          - 8088:80
+      environment:
+          - MYSQL_ROOT_PASSWORD=linux
+          - MYSQL_USER=root
+          - MYSQL_PASSWORD=linux
+    hss:
+      build: hss
+      links:
+       - db:db.openair4G.eur
+      networks:
+        default:
+        epc:
+          ipv4_address: 192.168.142.10
+      domainname: openair4G.eur
+      hostname: hss
+    mme:
+      build: mme
+      links:
+       - hss:hss.openair4G.eur
+      networks:
+        epc:
+          ipv4_address: 192.168.142.20
+      domainname: openair4G.eur
+      hostname: mme
+    spgw:
+      build: spgw
+      links:
+       - hss:hss.openair4G.eur
+      networks:
+        epc:
+          ipv4_address: 192.168.142.30
+        sg:
+          ipv4_address: 172.16.0.2
+      privileged: true
+      domainname: openair4G.eur
+      hostname: spgw
+      volumes:
+       - /lib/modules:/lib/modules
 
 networks:
   monitoring:
