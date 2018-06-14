@@ -122,6 +122,8 @@ services:
      - /lib/modules:/lib/modules
 
 networks:
+  monitoring:
+    driver: bridge
   epc:
     driver: bridge
     ipam:
