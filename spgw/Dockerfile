@@ -214,9 +214,9 @@ RUN make -j`nproc`
 
 
 RUN mkdir -p /usr/local/etc/oai/freeDiameter
-RUN cp /root/openair-cn/etc/spgw.conf /usr/local/etc/oai/
-RUN sed -i s/"192.168.11.17"/"192.168.142.30"/g /usr/local/etc/oai/spgw.conf
-RUN sed -i s/"eth3"/"eth1"/g /usr/local/etc/oai/spgw.conf
+# RUN cp /root/openair-cn/etc/spgw.conf /usr/local/etc/oai/
+# RUN sed -i s/"192.168.11.17"/"192.168.142.30"/g /usr/local/etc/oai/spgw.conf
+# RUN sed -i s/"eth3"/"eth1"/g /usr/local/etc/oai/spgw.conf
 
 #  PGW_INTERFACE_NAME_FOR_SGI            = "eth3";                         # STRING, YOUR NETWORK CONFIG HERE
 #        PGW_MASQUERADE_SGI                    = "no";                           # STRING, {"yes", "no"}. YOUR NETWORK CONFIG HERE, will do NAT for you if you put "yes".

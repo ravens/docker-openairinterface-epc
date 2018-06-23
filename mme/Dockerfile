@@ -169,9 +169,9 @@ RUN make -j`nproc`
 
 # Configuration files
 RUN mkdir -p /usr/local/etc/oai/freeDiameter
-RUN cp /root/openair-cn/etc/mme.conf /usr/local/etc/oai/
+# RUN cp /root/openair-cn/etc/mme.conf /usr/local/etc/oai/
 RUN cp /root/openair-cn/etc/mme_fd.conf /usr/local/etc/oai/freeDiameter/
-RUN sed -i s/"192.168.11.17\/24"/"192.168.142.20\/24"/g /usr/local/etc/oai/mme.conf
+# RUN sed -i s/"192.168.11.17\/24"/"192.168.142.20\/24"/g /usr/local/etc/oai/mme.conf
 RUN sed -i s/"yang.openair4G.eur"/"mme.openair4G.eur"/g /usr/local/etc/oai/freeDiameter/mme_fd.conf
 RUN sed -i s/"127.0.0.1"/"192.168.142.10"/g /usr/local/etc/oai/freeDiameter/mme_fd.conf
 

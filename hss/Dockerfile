@@ -110,18 +110,18 @@ RUN cmake -DOPENAIRCN_DIR=/root/openair-cn ../
 RUN make -j`nproc`
 
 RUN mkdir -p /usr/local/etc/oai/freeDiameter
-RUN cp /root/openair-cn/etc/hss.conf /usr/local/etc/oai/
+# RUN cp /root/openair-cn/etc/hss.conf /usr/local/etc/oai/
 RUN cp /root/openair-cn/etc/hss_fd.conf /usr/local/etc/oai/freeDiameter/
 RUN cp /root/openair-cn/etc/acl.conf /usr/local/etc/oai/freeDiameter/
 
 # MySQL database configuration 
-RUN sed -i "s/@MYSQL_user@/$MYSQLUSER/g" /usr/local/etc/oai/hss.conf
-RUN sed -i "s/@MYSQL_pass@/$MYSQLPASSWORD/g" /usr/local/etc/oai/hss.conf
-RUN sed -i "s/127.0.0.1/$MYSQLHOSTNAME/g" /usr/local/etc/oai/hss.conf
-RUN sed -i "s/oai_db/$MYSQLDATABASE/g" /usr/local/etc/oai/hss.conf
+# RUN sed -i "s/@MYSQL_user@/$MYSQLUSER/g" /usr/local/etc/oai/hss.conf
+# RUN sed -i "s/@MYSQL_pass@/$MYSQLPASSWORD/g" /usr/local/etc/oai/hss.conf
+# RUN sed -i "s/127.0.0.1/$MYSQLHOSTNAME/g" /usr/local/etc/oai/hss.conf
+# RUN sed -i "s/oai_db/$MYSQLDATABASE/g" /usr/local/etc/oai/hss.conf
 
 # Operator key (OP)
-RUN sed -i "s/1006020f0a478bf6b699f15c062e42b3/$OPKEY/g" /usr/local/etc/oai/hss.conf
+# RUN sed -i "s/1006020f0a478bf6b699f15c062e42b3/$OPKEY/g" /usr/local/etc/oai/hss.conf
 
 # Generation of certificate for diameter 
 WORKDIR /root/

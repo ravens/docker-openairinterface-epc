@@ -46,6 +46,7 @@ services:
       networks:
         default:
         epc:
+          ipv4_address: 192.168.142.40
     iperf3_client:
       depends_on:
           - iperf3_server
@@ -55,7 +56,6 @@ services:
       volumes:
        - /tmp/iperf_status:/tmp/iperf_status
       networks:
-        default:
         epc:
 
     ###############
@@ -69,6 +69,8 @@ services:
           - MYSQL_ROOT_PASSWORD=linux
       domainname: openair4G.eur
       hostname: db
+      volumes:
+       - ./db/oai_db.sql:/docker-entrypoint-initdb.d/oai_db.sql
     phpmyadmin:
       image: phpmyadmin/phpmyadmin
       links:
@@ -89,6 +91,8 @@ services:
           ipv4_address: 192.168.142.10
       domainname: openair4G.eur
       hostname: hss
+      volumes:
+       - ./hss/hss.conf:/usr/local/etc/oai/hss.conf:ro
     mme:
       build: mme
       links:
@@ -98,6 +102,8 @@ services:
           ipv4_address: 192.168.142.20
       domainname: openair4G.eur
       hostname: mme
+      volumes:
+       - ./mme/mme.conf:/usr/local/etc/oai/mme.conf:ro
     spgw:
       build: spgw
       links:
@@ -105,13 +111,12 @@ services:
       networks:
         epc:
           ipv4_address: 192.168.142.30
-        sg:
-          ipv4_address: 172.16.0.2
       privileged: true
       domainname: openair4G.eur
       hostname: spgw
       volumes:
        - /lib/modules:/lib/modules
+       - ./spgw/spgw.conf:/usr/local/etc/oai/spgw.conf:ro
 
 networks:
   monitoring:

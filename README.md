@@ -12,3 +12,12 @@ Edit the various Dockerfile or override the corresponding arg variable to match 
 ## Run 
 
 > docker-compose up 
+
+
+## Test oaisim
+```
+sudo -E ./run_enb_ue_virt_s1 
+ping google.com -I oip1 
+```
+
+
