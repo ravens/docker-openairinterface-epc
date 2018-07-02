@@ -169,7 +169,7 @@ RUN make -j`nproc`
 
 # Configuration files
 RUN mkdir -p /usr/local/etc/oai/freeDiameter
-RUN cp /root/openair-cn/etc/mme.conf /usr/local/etc/oai/
+# RUN cp /root/openair-cn/etc/mme.conf /usr/local/etc/oai/
 RUN cp /root/openair-cn/etc/mme_fd.conf /usr/local/etc/oai/freeDiameter/
 
 ENV HSS_CN_NAME=hss.openair4G.eur

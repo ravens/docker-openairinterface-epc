@@ -110,7 +110,7 @@ RUN cmake -DOPENAIRCN_DIR=/root/openair-cn ../
 RUN make -j`nproc`
 
 RUN mkdir -p /usr/local/etc/oai/freeDiameter
-RUN cp /root/openair-cn/etc/hss.conf /usr/local/etc/oai/
+# RUN cp /root/openair-cn/etc/hss.conf /usr/local/etc/oai/
 RUN cp /root/openair-cn/etc/hss_fd.conf /usr/local/etc/oai/freeDiameter/
 RUN cp /root/openair-cn/etc/acl.conf /usr/local/etc/oai/freeDiameter/
 
@@ -118,6 +118,7 @@ ENV MYSQLUSER=root
 ENV MYSQLPASSWORD=linux
 ENV MYSQLDATABASE=oai_db
 ENV MYSQLHOSTNAME=db.openair4G.eur
+
 
 ENV OPKEY=63bfa50ee6523365ff14c1f45f88737d
 
@@ -127,3 +128,4 @@ WORKDIR /root
 COPY start.sh /root/start.sh
 RUN chmod +x /root/start.sh
 ENTRYPOINT "/root/start.sh"
+
