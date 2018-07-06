@@ -1,58 +1,126 @@
 version: '2'
 
 services:
-  db:
-    build: db
-    ports:
-        - 3306:3306
-    environment:
-        - MYSQL_ROOT_PASSWORD=linux
-    domainname: openair4G.eur
-    hostname: db
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    links:
-     - db:db
-    ports:
-        - 8080:80
-    environment:
-        - MYSQL_ROOT_PASSWORD=linux
-        - MYSQL_USER=root
-        - MYSQL_PASSWORD=linux
-  hss:
-    build: hss
-    links:
-     - db:db.openair4G.eur
-    networks:
-      default:
-      epc:
-        ipv4_address: 192.168.142.10
-    domainname: openair4G.eur
-    hostname: hss
-  mme: 
-    build: mme
-    links:
-     - hss:hss.openair4G.eur
-    networks:
-      epc:
-        ipv4_address: 192.168.142.20
-    domainname: openair4G.eur
-    hostname: mme
-  spgw: 
-    build: spgw
-    links:
-     - hss:hss.openair4G.eur
-    networks:
-      epc:
-        ipv4_address: 192.168.142.30
-      sg:
-        ipv4_address: 172.16.0.2
-    privileged: true
-    domainname: openair4G.eur
-    hostname: spgw
-    volumes:
-     - /lib/modules:/lib/modules 
+    ######################
+    # Monitring Services #
+    ######################
+    cadvisor:
+      image: google/cadvisor:latest
+      container_name: oai_cadvisor
+      ports:
+          - 8080:8080
+      volumes:
+          - /:/rootfs:ro
+          - /var/run:/var/run:rw
+          - /sys:/sys:ro
+          - /var/lib/docker/:/var/lib/docker:ro
+          - /dev/disk/:/dev/disk:ro
+      networks:
+          - monitoring
+    prometheus:
+      image: prom/prometheus
+      container_name: oai_prometheus
+      ports:
+          - 9090:9090
+      volumes:
+          - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      networks:
+          - monitoring
+    grafana:
+      image: grafana/grafana
+      container_name: oai_grafana
+      ports:
+          - 3000:3000
+      networks:
+          - monitoring
+
+    #####################
+    # Traffic Generator #
+    #####################
+    iperf3_server:
+      image: networkstatic/iperf3
+      container_name: oai_iperf3_server
+      ports:
+          - 5201:5201
+      command: ["-s"]
+      networks:
+        default:
+        epc:
+          ipv4_address: 192.168.142.40
+    iperf3_client:
+      depends_on:
+          - iperf3_server
+      image: networkstatic/iperf3
+      container_name: oai_iperf3_client
+      entrypoint: bash -x -c "while true;do /usr/bin/iperf3 -c iperf3_server; sleep 30;done"
+      volumes:
+       - /tmp/iperf_status:/tmp/iperf_status
+      networks:
+        epc:
+
+    ###############
+    # EPC Network #
+    ###############
+    db:
+      build: db
+      ports:
+          - 3306:3306
+      environment:
+          - MYSQL_ROOT_PASSWORD=linux
+      domainname: openair4G.eur
+      hostname: db
+      volumes:
+       - ./db/oai_db.sql:/docker-entrypoint-initdb.d/oai_db.sql
+    phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      links:
+       - db:db
+      ports:
+          - 8088:80
+      environment:
+          - MYSQL_ROOT_PASSWORD=linux
+          - MYSQL_USER=root
+          - MYSQL_PASSWORD=linux
+    hss:
+      build: hss
+      links:
+       - db:db.openair4G.eur
+      networks:
+        default:
+        epc:
+          ipv4_address: 192.168.142.10
+      domainname: openair4G.eur
+      hostname: hss
+      volumes:
+       - ./hss/hss.conf:/usr/local/etc/oai/hss.conf:ro
+    mme:
+      build: mme
+      links:
+       - hss:hss.openair4G.eur
+      networks:
+        epc:
+          ipv4_address: 192.168.142.20
+      domainname: openair4G.eur
+      hostname: mme
+      volumes:
+       - ./mme/mme.conf:/usr/local/etc/oai/mme.conf:ro
+    spgw:
+      build: spgw
+      links:
+       - hss:hss.openair4G.eur
+      networks:
+        epc:
+          ipv4_address: 192.168.142.30
+      privileged: true
+      domainname: openair4G.eur
+      hostname: spgw
+      volumes:
+       - /lib/modules:/lib/modules
+       - ./spgw/spgw.conf:/usr/local/etc/oai/spgw.conf:ro
+
 networks:
+  monitoring:
+    driver: bridge
   epc:
     driver: bridge
     ipam:

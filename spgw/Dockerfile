@@ -215,12 +215,13 @@ RUN make -j`nproc`
 
 RUN mkdir -p /usr/local/etc/oai/freeDiameter
 RUN cp /root/openair-cn/etc/spgw.conf /usr/local/etc/oai/
-RUN sed -i s/"192.168.11.17"/"192.168.142.30"/g /usr/local/etc/oai/spgw.conf
-RUN sed -i s/"eth3"/"eth1"/g /usr/local/etc/oai/spgw.conf
-
-#  PGW_INTERFACE_NAME_FOR_SGI            = "eth3";                         # STRING, YOUR NETWORK CONFIG HERE
-#        PGW_MASQUERADE_SGI                    = "no";                           # STRING, {"yes", "no"}. YOUR NETWORK CONFIG HERE, will do NAT for you if you put "yes".
-#        UE_TCP_MSS_CLAMPING                   = "no";                           # STRING, {"yes", "no"}. 
-
 RUN apt-get -qy install iptables
-ENTRYPOINT bash -x -c "/root/openair-cn/build/spgw/build/spgw"
+
+ENV SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP="192.168.142.30"
+ENV PGW_INTERFACE_NAME_FOR_SGI="eth1"
+
+#ready to work
+WORKDIR /root
+COPY start.sh /root/start.sh
+RUN chmod +x /root/start.sh
+ENTRYPOINT "/root/start.sh"
