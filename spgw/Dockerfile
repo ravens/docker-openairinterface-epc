@@ -2,19 +2,19 @@ FROM ubuntu:16.04
 MAINTAINER Yan Grunenberger <yan@grunenberger.net>
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update
-RUN apt-get -yq dist-upgrade 
+RUN apt-get -yq dist-upgrade
 
 # General utilities
 RUN apt-get -qy install kmod git wget apt-utils
 
 # Adding OAI certificates
-RUN mkdir -p /usr/local/share/ca-certificates/eurecom 
+RUN mkdir -p /usr/local/share/ca-certificates/eurecom
 RUN echo -n | openssl s_client -showcerts -connect gitlab.eurecom.fr:443 2>/dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /usr/local/share/ca-certificates/eurecom/eurecom.crt
 RUN update-ca-certificates
 
 # cloning directory
 WORKDIR /root
-RUN git clone https://gitlab.eurecom.fr/oai/openair-cn.git 
+RUN git clone https://gitlab.eurecom.fr/oai/openair-cn.git
 
 WORKDIR /root/openair-cn
 RUN git checkout develop
@@ -48,7 +48,7 @@ RUN apt-get -qy install autoconf  \
  doxygen-gui\
  flex  \
  gdb \
- pkg-config 
+ pkg-config
 
 # (from build_helper) git/svn
 RUN apt-get -qy install git \
@@ -67,7 +67,7 @@ RUN apt-get -qy install libconfig8-dev \
  libtool \
  mysql-client \
  mysql-server \
- openssl 
+ openssl
 
 # (from build_helper) compile nettle from source
 RUN apt-get -qy install  \
@@ -77,9 +77,9 @@ RUN apt-get -qy install  \
  libgmp-dev
 WORKDIR /root
 # other mirror : ftp://ftp.lysator.liu.se/pub/security/lsh/nettle-2.5.tar.gz
-RUN wget https://ftp.gnu.org/gnu/nettle/nettle-2.5.tar.gz 
+RUN wget https://ftp.gnu.org/gnu/nettle/nettle-2.5.tar.gz
 RUN tar -xzf nettle-2.5.tar.gz
-RUN cd nettle-2.5/ &&  ./configure --disable-openssl --enable-shared --prefix=/usr  &&  make -j`nproc` &&  make check  &&  make install 
+RUN cd nettle-2.5/ &&  ./configure --disable-openssl --enable-shared --prefix=/usr  &&  make -j`nproc` &&  make check  &&  make install
 
 # (from build_helper) install_gnutls_from_source $1
 WORKDIR /root
@@ -88,7 +88,7 @@ RUN apt-get -qy install \
  automake  \
  build-essential
 #      libtasn1-6-dbg \  libp11-kit0-dbg \
-RUN apt-get -qy install libtasn1-6-dev \     
+RUN apt-get -qy install libtasn1-6-dev \
  libp11-kit-dev \
  libtspi-dev \
  libtspi1 \
@@ -120,20 +120,20 @@ RUN apt-get -qy install autoconf  \
  mercurial \
  python-dev \
  ssl-cert \
- swig 
+ swig
 
 # Run freediameter (hard dependencies on gnutls)
 WORKDIR /root
-RUN git clone https://gitlab.eurecom.fr/oai/freediameter.git -b eurecom-1.2.0  
+RUN git clone https://gitlab.eurecom.fr/oai/freediameter.git -b eurecom-1.2.0
 WORKDIR /root/freediameter
-RUN mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ../ && make -j`nproc` && make install 
+RUN mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ../ && make -j`nproc` && make install
 
 # PHPmyadmin for the MME database management
 WORKDIR /root
 RUN apt-get -qy install phpmyadmin \
  python-pexpect \
  php \
- libapache2-mod-php 
+ libapache2-mod-php
 
 RUN apt-get -qy install check \
  phpmyadmin \
@@ -144,7 +144,7 @@ RUN apt-get -qy install check \
 #  install_asn1c_from_source
 WORKDIR /root
 RUN apt-get -qy install autoconf automake bison build-essential flex gcc libtool
-RUN git clone https://gitlab.eurecom.fr/oai/asn1c.git 
+RUN git clone https://gitlab.eurecom.fr/oai/asn1c.git
 RUN cd asn1c && ./configure && make && make install
 
 #   install_libgtpnl_from_source
@@ -199,9 +199,9 @@ RUN apt-get -qy install  ethtool \
 
 RUN apt-get -qy install python-dev \
     python-pexpect \
-    unzip 
+    unzip
 
-# compiling OAI mme executable 
+# compiling OAI mme executable
 WORKDIR /root/openair-cn/build/
 
 WORKDIR /root/openair-cn/build/spgw
@@ -215,12 +215,13 @@ RUN make -j`nproc`
 
 RUN mkdir -p /usr/local/etc/oai/freeDiameter
 RUN cp /root/openair-cn/etc/spgw.conf /usr/local/etc/oai/
-RUN sed -i s/"192.168.11.17"/"192.168.142.30"/g /usr/local/etc/oai/spgw.conf
-RUN sed -i s/"eth3"/"eth1"/g /usr/local/etc/oai/spgw.conf
-
-#  PGW_INTERFACE_NAME_FOR_SGI            = "eth3";                         # STRING, YOUR NETWORK CONFIG HERE
-#        PGW_MASQUERADE_SGI                    = "no";                           # STRING, {"yes", "no"}. YOUR NETWORK CONFIG HERE, will do NAT for you if you put "yes".
-#        UE_TCP_MSS_CLAMPING                   = "no";                           # STRING, {"yes", "no"}. 
-
 RUN apt-get -qy install iptables
-ENTRYPOINT bash -x -c "/root/openair-cn/build/spgw/build/spgw"
+
+ENV SGW_IPV4_ADDRESS_FOR_S1U_S12_S4_UP="192.168.142.30"
+ENV PGW_INTERFACE_NAME_FOR_SGI="eth1"
+
+#ready to work
+WORKDIR /root
+COPY start.sh /root/start.sh
+RUN chmod +x /root/start.sh
+ENTRYPOINT "/root/start.sh"
